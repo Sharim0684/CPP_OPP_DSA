@@ -1,37 +1,165 @@
-// Define a class Area and define instance member functions to find the area of the
-// different shapes like square, rectangle , circle etc
+// Write a C++ program to implement Hash Table using Template Class
+
 #include<iostream>
+#include<cstdlib>
+#include<string>
+#include<cstdio>
 using namespace std;
-class Area
+const int TABLE_SIZE = 128;
+ 
+/*
+ * HashEntry Class Declaration
+ */
+class HashEntry
+{
+    public:
+        int key;
+        int value;
+        HashEntry(int key, int value)
+        {
+            this->key = key;
+            this->value = value;
+        }
+};
+ 
+/*
+ * HashMap Class Declaration
+ */
+class HashMap
 {
     private:
-    float len,bredth,width,redius;
-    public:
-    float x,y,z;
-    
-    void square(float len , float bredth)
-    {
-         x = len * bredth;
-         cout<<"area of square is :"<<x<<endl;
-    }
-    void rectangle(float len , float width)
-    {
-         y = len*width;
-         cout<<"area of rectangle is :"<<y<<endl;
-    }
-    void circle(float redius)
-    {
-          z = 3.14*redius*redius;
-          cout<<"area of circle is : "<<z<<endl;
-    }
+        HashEntry **table;
+    public:   
+        HashMap()
+	{
+            table = new HashEntry * [TABLE_SIZE];
+            for (int i = 0; i< TABLE_SIZE; i++)
+            {
+                table[i] = NULL;
+            }
+        }
+        /*
+         * Hash Function
+         */
+        int HashFunc(int key)
+        {
+            return key % TABLE_SIZE;
+        }
+        /*
+         * Insert Element at a key
+         */
+	void Insert(int key, int value)
+	{
+            int hash = HashFunc(key);
+            while (table[hash] != NULL && table[hash]->key != key)
+            {
+                hash = HashFunc(hash + 1);
+            }
+            if (table[hash] != NULL)
+                delete table[hash];
+            table[hash] = new HashEntry(key, value);
+	}
+        /*
+         * Search Element at a key
+         */
+        int Search(int key)
+	{
+	    int  hash = HashFunc(key);
+	    while (table[hash] != NULL && table[hash]->key != key)
+	    {
+	        hash = HashFunc(hash + 1);
+	    }
+	    if (table[hash] == NULL)
+	        return -1;
+	    else
+	        return table[hash]->value;
+        }
+ 
+        /*
+         * Remove Element at a key
+         */
+        void Remove(int key)
+	{
+	    int hash = HashFunc(key);
+	    while (table[hash] != NULL)
+	    {
+	        if (table[hash]->key == key)
+	            break;
+	        hash = HashFunc(hash + 1);
+	    }
+            if (table[hash] == NULL)
+	    {
+                cout<<"No Element found at key "<<key<<endl;
+                return;
+            }
+            else
+            {
+                delete table[hash];
+            }
+            cout<<"Element Deleted"<<endl;
+        }
+        ~HashMap()
+	{
+            for (int i = 0; i < TABLE_SIZE; i++)
+            {
+                if (table[i] != NULL)
+                    delete table[i];
+                delete[] table;
+            }
+        }
 };
+/*
+ * Main Contains Menu
+ */
 int main()
 {
-    Area s1,r1,c1;
-    s1.square(2,3);
-    r1.rectangle(2,5);
-    c1.circle(3);
-
+    HashMap hash;
+    int key, value;
+    int choice;
+    while (1)
+    {
+        cout<<"\n----------------------"<<endl;
+        cout<<"Operations on Hash Table"<<endl;
+        cout<<"\n----------------------"<<endl;
+        cout<<"1.Insert element into the table"<<endl;
+        cout<<"2.Search element from the key"<<endl;
+        cout<<"3.Delete element at a key"<<endl;
+        cout<<"4.Exit"<<endl;
+        cout<<"Enter your choice: ";
+        cin>>choice;
+        switch(choice)
+        {
+        case 1:
+            cout<<"Enter element to be inserted: ";
+            cin>>value;
+            cout<<"Enter key at which element to be inserted: ";
+            cin>>key;
+            hash.Insert(key, value);
+            break;
+        case 2:
+            cout<<"Enter key of the element to be searched: ";
+            cin>>key;
+            if (hash.Search(key) == -1)
+            {
+	        cout<<"No element found at key "<<key<<endl;
+	        continue;
+	    }
+	    else
+	    {
+	        cout<<"Element at key "<<key<<" : ";
+	        cout<<hash.Search(key)<<endl;
+	    }
+            break;
+        case 3:
+            cout<<"Enter key of the element to be deleted: ";
+            cin>>key;
+            hash.Remove(key);
+            break;
+        case 4:
+            exit(1);
+        default:
+           cout<<"\nEnter correct option\n";
+       }
+    }
     return 0;
-
 }
